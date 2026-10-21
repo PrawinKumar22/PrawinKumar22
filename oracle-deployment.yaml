@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: oracle-db
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: oracle-db
+
+  template:
+    metadata:
+      labels:
+        app: oracle-db
+
+    spec:
+      containers:
+        - name: oracle-db
+          image: container-registry.oracle.com/database/free:latest
+
+          ports:
+            - containerPort: 1521
+
+          env:
+            - name: ORACLE_PWD
+              value: Oracle123

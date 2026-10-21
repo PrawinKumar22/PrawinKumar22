@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: oracle-db
+
+spec:
+  selector:
+    app: oracle-db
+
+  ports:
+    - port: 1521
+      targetPort: 1521

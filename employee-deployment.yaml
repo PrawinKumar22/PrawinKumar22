@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: employee-skill-matrix
+
+spec:
+  replicas: 2
+
+  selector:
+    matchLabels:
+      app: employee-skill-matrix
+
+  template:
+    metadata:
+      labels:
+        app: employee-skill-matrix
+
+    spec:
+      containers:
+        - name: employee-skill-matrix
+
+          image: employee-skill-matrix:1.0
+
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 5050
