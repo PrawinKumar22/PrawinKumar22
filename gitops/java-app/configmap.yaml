@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: java-app-config
+
+data:
+  APP_MESSAGE: "Hello from Mounted ConfigMap - UPDATED"
