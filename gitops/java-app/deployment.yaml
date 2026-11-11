@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: java-app
-          image: prawinkumar22/java-app:17
+          image: prawinkumar22/java-app:19
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
