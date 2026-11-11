@@ -72,19 +72,34 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Update GitOps Manifest') {
             steps {
-                dir('projects/java-app') {
-                    withKubeConfig([credentialsId: 'kind-kubeconfig']) {
-                        sh '''
-                            echo "Deploying application to Kind Kubernetes..."
+                withCredentials([
+                    gitUsernamePassword(
+                        credentialsId: 'github-creds',
+                        gitToolName: 'Default'
+                    )
+                ]) {
+                    sh '''
+                        echo "Updating GitOps deployment manifest..."
 
-                            sed "s|\\${DOCKER_IMAGE}|${DOCKER_IMAGE}|g; s|\\${IMAGE_TAG}|${IMAGE_TAG}|g" deployment.yaml | kubectl apply -f -
+                        sed -i "s|^[[:space:]]*image:.*|          image: ${DOCKER_IMAGE}:${IMAGE_TAG}|" \
+                            gitops/java-app/deployment.yaml
 
-                            kubectl rollout status deployment/java-app \
-                              -n default --timeout=180s
-                        '''
-                    }
+                        git config user.name "Jenkins CI"
+                        git config user.email "jenkins@localhost"
+
+                        git add gitops/java-app/deployment.yaml
+
+                        if git diff --cached --quiet; then
+                            echo "No GitOps manifest changes detected."
+                        else
+                            git commit -m "Update java-app image to ${IMAGE_TAG}"
+                            git push origin HEAD:main
+                        fi
+
+                        echo "GitOps manifest update completed."
+                    '''
                 }
             }
         }
@@ -93,6 +108,7 @@ pipeline {
     post {
         success {
             echo "Pipeline completed successfully! Published ${DOCKER_IMAGE}:${IMAGE_TAG}"
+            echo "GitOps manifest updated for Argo CD deployment."
         }
         failure {
             echo 'Pipeline failed. Check the stage logs.'
